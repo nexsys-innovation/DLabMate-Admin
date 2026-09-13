@@ -1,0 +1,5 @@
+/*
+  Referrer-Policy: no-referrer
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Content-Security-Policy: default-src 'self'; connect-src 'self' https:; img-src 'self' data: blob: https://*.r2.cloudflarestorage.com; frame-src https://*.r2.cloudflarestorage.com; style-src 'self' 'unsafe-inline'; script-src 'self'; font-src 'self' data:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'
