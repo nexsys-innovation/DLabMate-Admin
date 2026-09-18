@@ -1,5 +1,6 @@
+import { clearQueryCache } from "../hooks/useCachedQuery";
 import React, { useEffect } from 'react';
-import { Building2, FlaskConical, LayoutDashboard, LogOut, ShieldCheck } from 'lucide-react';
+import { Building2, FlaskConical, Globe, LayoutDashboard, LogOut, ShieldCheck, CreditCard } from 'lucide-react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 
 const links = [
@@ -7,6 +8,8 @@ const links = [
   ['/labs', FlaskConical, 'Labs'],
   ['/clinics', Building2, 'Clinics'],
   ['/verification', ShieldCheck, 'Verification'],
+  ['/billing-orders', CreditCard, 'Billing Orders'],
+  ['/marketing', Globe, 'Marketing'],
 ];
 
 const AdminLayout = ({ children }) => {
@@ -17,7 +20,7 @@ const AdminLayout = ({ children }) => {
     window.addEventListener('dlabmate:admin-session-expired', expired);
     return () => window.removeEventListener('dlabmate:admin-session-expired', expired);
   }, [location, navigate]);
-  const logout = () => { localStorage.removeItem('adminToken'); navigate('/login', { replace: true }); };
+  const logout = () => { localStorage.removeItem('adminToken'); clearQueryCache(); navigate('/login', { replace: true }); };
   return (
     <div className="admin-app">
       <aside className="admin-sidebar">

@@ -9,8 +9,11 @@
     "lucide-react": "0.562.0",
     "react": "19.2.1",
     "react-dom": "19.2.1",
+    "react-markdown": "^10.1.0",
     "react-router-dom": "7.11.0",
     "react-scripts": "5.0.1",
+    "rehype-raw": "^7.0.0",
+    "remark-gfm": "^4.0.1",
     "web-vitals": "2.1.4"
   },
   "scripts": {
@@ -18,9 +21,22 @@
     "build": "react-scripts build",
     "test": "react-scripts test"
   },
-  "eslintConfig": { "extends": ["react-app", "react-app/jest"] },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
   "browserslist": {
-    "production": [">0.2%", "not dead", "not op_mini all"],
-    "development": ["last 1 chrome version", "last 1 firefox version", "last 1 safari version"]
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   }
 }

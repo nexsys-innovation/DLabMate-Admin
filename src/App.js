@@ -8,6 +8,8 @@ import EntityDetailPage from './pages/EntityDetailPage';
 import VerificationQueuePage from './pages/VerificationQueuePage';
 import VerificationReviewPage from './pages/VerificationReviewPage';
 import AddClinicPage from './pages/AddClinicPage';
+import MarketingPage from './pages/MarketingPage';
+import BillingOrdersQueuePage from './pages/BillingOrdersQueuePage';
 
 const Protected = ({ children }) => {
   const location = useLocation();
@@ -30,6 +32,8 @@ const App = () => (
       <Route path="/clinics/new" element={<Shell><AddClinicPage /></Shell>} />
       <Route path="/verification" element={<Shell><VerificationQueuePage /></Shell>} />
       <Route path="/verification/:submissionId" element={<Shell><VerificationReviewPage /></Shell>} />
+      <Route path="/billing-orders" element={<Shell><BillingOrdersQueuePage /></Shell>} />
+      <Route path="/marketing" element={<Shell><MarketingPage /></Shell>} />
       <Route path="*" element={<Navigate to={localStorage.getItem('adminToken') ? '/dashboard' : '/login'} replace />} />
     </Routes>
   </BrowserRouter>
