@@ -22,7 +22,7 @@ export function useCachedQuery(queryKey, loader, {
   }
   const key = JSON.stringify([identity, queryKey]);
   let entry = cache.get(key);
-  if (!entry || !entry.listeners.size && Date.now() - entry.touched > MAX_AGE) {
+  if (!entry || (!entry.listeners.size && Date.now() - entry.touched > MAX_AGE)) {
     entry = {
       data: undefined,
       error: null,

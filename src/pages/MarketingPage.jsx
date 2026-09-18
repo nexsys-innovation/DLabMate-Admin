@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { apiRequest } from '../api';
 import { Plus, Trash2, Edit, X } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
@@ -57,7 +57,7 @@ export default function MarketingPage() {
   const [showNewPlanModal, setShowNewPlanModal] = useState(false);
   const [newPlanForm, setNewPlanForm] = useState({ code: '', name: '', description: '', monthlyPriceNpr: 1899, monthlyIncludedCredits: 300, displayOrder: 1 });
   const [showEditPlanModal, setShowEditPlanModal] = useState(false);
-  const [editingPlan, setEditingPlan] = useState(null);
+  const [, setEditingPlan] = useState(null);
   const [editPlanForm, setEditPlanForm] = useState({ planId: '', code: '', name: '', description: '', monthlyPriceNpr: 1899, monthlyIncludedCredits: 300, displayOrder: 1 });
   const [planSaving, setPlanSaving] = useState(false);
   const [editingCreditPack, setEditingCreditPack] = useState(null);
@@ -65,7 +65,7 @@ export default function MarketingPage() {
   const [creditPackForm, setCreditPackForm] = useState({ name: 'Shared Top-Up Pack', creditsPerPack: 100, priceNpr: 1000, status: 'published' });
 
   // Load leads
-  const fetchLeads = async () => {
+  const fetchLeads = useCallback(async () => {
     setLeadLoading(true);
     setLeadError('');
     try {
@@ -80,10 +80,10 @@ export default function MarketingPage() {
     } finally {
       setLeadLoading(false);
     }
-  };
+  }, [leadFilterStatus, leadFilterType]);
 
   // Load site settings
-  const fetchSettings = async () => {
+  const fetchSettings = useCallback(async () => {
     setSettingsLoading(true);
     try {
       const data = await apiRequest('/api/admin/marketing/site');
@@ -95,10 +95,10 @@ export default function MarketingPage() {
     } finally {
       setSettingsLoading(false);
     }
-  };
+  }, []);
 
   // Load FAQs
-  const fetchFaqs = async () => {
+  const fetchFaqs = useCallback(async () => {
     setFaqLoading(true);
     try {
       const data = await apiRequest('/api/admin/marketing/faqs');
@@ -108,10 +108,23 @@ export default function MarketingPage() {
     } finally {
       setFaqLoading(false);
     }
-  };
+  }, []);
+
+  const selectPageForEdit = useCallback((page) => {
+    setSelectedPage(page);
+    setPageForm({
+      title: page.title || '',
+      metaDescription: page.metaDescription || '',
+      contentMarkdown: page.contentMarkdown || '',
+      headline: page.sections?.headline || '',
+      body: page.sections?.body || '',
+      mission: page.sections?.mission || '',
+    });
+    setPageMessage('');
+  }, []);
 
   // Load CMS Pages
-  const fetchPages = async () => {
+  const fetchPages = useCallback(async () => {
     setPagesLoading(true);
     try {
       const data = await apiRequest('/api/admin/marketing/pages');
@@ -125,20 +138,7 @@ export default function MarketingPage() {
     } finally {
       setPagesLoading(false);
     }
-  };
-
-  const selectPageForEdit = (page) => {
-    setSelectedPage(page);
-    setPageForm({
-      title: page.title || '',
-      metaDescription: page.metaDescription || '',
-      contentMarkdown: page.contentMarkdown || '',
-      headline: page.sections?.headline || '',
-      body: page.sections?.body || '',
-      mission: page.sections?.mission || '',
-    });
-    setPageMessage('');
-  };
+  }, [selectedPage, selectPageForEdit]);
 
   const insertMarkdownSnippet = (snippet) => {
     setPageForm((prev) => ({
@@ -148,7 +148,7 @@ export default function MarketingPage() {
   };
 
   // Load Plans & Top-Up Credit Packs
-  const fetchPlansAndCreditPacks = async () => {
+  const fetchPlansAndCreditPacks = useCallback(async () => {
     setPlansLoading(true);
     try {
       const [plansData, creditPacksData] = await Promise.all([
@@ -162,7 +162,7 @@ export default function MarketingPage() {
     } finally {
       setPlansLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     if (activeTab === 'leads') fetchLeads();
@@ -170,7 +170,7 @@ export default function MarketingPage() {
     if (activeTab === 'faqs') fetchFaqs();
     if (activeTab === 'pages') fetchPages();
     if (activeTab === 'plans') fetchPlansAndCreditPacks();
-  }, [activeTab, leadFilterStatus, leadFilterType]);
+  }, [activeTab, fetchLeads, fetchSettings, fetchFaqs, fetchPages, fetchPlansAndCreditPacks]);
 
   const handleUpdateLeadStatus = async (id, status, notes) => {
     setLeadStatusUpdating(true);

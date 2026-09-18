@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { CreditCard, CheckCircle2, XCircle, Clock, Search, RefreshCw } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { RefreshCw } from 'lucide-react';
 
 const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5001';
 
@@ -13,7 +13,7 @@ const BillingOrdersQueuePage = () => {
 
   const token = localStorage.getItem('adminToken');
 
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     setLoading(true);
     try {
       const url = `${API_BASE}/api/admin/billing/orders${filterStatus ? `?status=${filterStatus}` : ''}`;
@@ -29,11 +29,11 @@ const BillingOrdersQueuePage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filterStatus, token]);
 
   useEffect(() => {
     fetchOrders();
-  }, [filterStatus]);
+  }, [fetchOrders]);
 
   const handleVerify = async (orderId) => {
     if (!window.confirm("Confirm payment verification and fulfill subscription/credits for this lab?")) return;
