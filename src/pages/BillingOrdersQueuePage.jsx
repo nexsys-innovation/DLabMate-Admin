@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { RefreshCw } from 'lucide-react';
+import ErrorBoundary from '../components/ErrorBoundary';
 
 const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5001';
 
@@ -155,7 +156,7 @@ const BillingOrdersQueuePage = () => {
                   </td>
                   <td style={{ padding: '12px 16px', whiteSpace: 'nowrap' }}>{ord.items?.[0]?.name || ord.orderType}</td>
                   <td style={{ padding: '12px 16px', whiteSpace: 'nowrap' }}>
-                    <div style={{ fontWeight: 700 }}>NPR {(ord.totalAmountPaisa / 100).toLocaleString()}</div>
+                    <div style={{ fontWeight: 700 }}>NPR {((ord.totalAmountPaisa || 0) / 100).toLocaleString()}</div>
                     {(ord.prorationDiscountPaisa > 0 || ord.discountPaisa > 0) && (
                       <div style={{ fontSize: '11px', color: '#166534', fontWeight: 600 }}>
                         Discount: -NPR {((ord.prorationDiscountPaisa || ord.discountPaisa) / 100).toLocaleString()} ({ord.remainingCreditsDiscounted || ord.metadata?.remainingCreditsDiscounted || 0} credits)
@@ -179,7 +180,7 @@ const BillingOrdersQueuePage = () => {
                     </div>
                     <div style={{ fontWeight: 600, color: '#1d4ed8' }}>{ord.paymentReference || 'N/A'}</div>
                     {ord.metadata?.paymentNote && <div style={{ fontSize: '12px', color: '#64748b' }}>{ord.metadata.paymentNote}</div>}
-                    {ord.paymentMethod === 'khalti' && ord.metadata?.khaltiPidx && <div style={{ fontSize: '11px', color: '#94a3b8' }}>PIDX: {ord.metadata.khaltiPidx.slice(0, 12)}...</div>}
+                    {ord.paymentMethod === 'khalti' && ord.metadata?.khaltiPidx && <div style={{ fontSize: '11px', color: '#94a3b8' }}>PIDX: {typeof ord.metadata.khaltiPidx === 'string' ? ord.metadata.khaltiPidx.slice(0, 12) : ''}...</div>}
                   </td>
                   <td style={{ padding: '12px 16px', whiteSpace: 'nowrap' }}>
                     <span style={{
@@ -253,4 +254,10 @@ const BillingOrdersQueuePage = () => {
   );
 };
 
-export default BillingOrdersQueuePage;
+const BillingOrdersQueuePageWithErrorBoundary = (props) => (
+  <ErrorBoundary>
+    <BillingOrdersQueuePage {...props} />
+  </ErrorBoundary>
+);
+
+export default BillingOrdersQueuePageWithErrorBoundary;
