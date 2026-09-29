@@ -1,6 +1,6 @@
 import { clearQueryCache } from "../hooks/useCachedQuery";
 import React, { useEffect } from 'react';
-import { Building2, FlaskConical, Globe, LayoutDashboard, LogOut, ShieldCheck, CreditCard } from 'lucide-react';
+import { Building2, FlaskConical, Globe, LayoutDashboard, LogOut, ShieldCheck, CreditCard, Mail } from 'lucide-react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 
 const links = [
@@ -9,6 +9,7 @@ const links = [
   ['/clinics', Building2, 'Clinics'],
   ['/verification', ShieldCheck, 'Verification'],
   ['/billing-orders', CreditCard, 'Billing Orders'],
+  ['/email-settings', Mail, 'Email & Alerts'],
   ['/marketing', Globe, 'Marketing'],
 ];
 
