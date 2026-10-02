@@ -25,7 +25,7 @@ const AdminLayout = ({ children }) => {
   return (
     <div className="admin-app">
       <aside className="admin-sidebar">
-        <div className="admin-brand"><span>D</span><div><strong>DLabMate</strong><small>Platform administration</small></div></div>
+        <div className="admin-brand"><img src="/logo_mini.png" alt="DLabMate" style={{ height: '32px' }} /><div><small>Platform administration</small></div></div>
         <nav>{links.map(([path, Icon, label]) => <NavLink key={path} to={path}><Icon size={18} />{label}</NavLink>)}</nav>
         <button type="button" className="admin-logout" onClick={logout}><LogOut size={18} />Sign out</button>
       </aside>
