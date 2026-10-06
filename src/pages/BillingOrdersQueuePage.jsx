@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { RefreshCw } from 'lucide-react';
+import PaymentRecordModal from '../components/PaymentRecordModal';
 import ErrorBoundary from '../components/ErrorBoundary';
 
 const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5001';
@@ -11,6 +12,9 @@ const BillingOrdersQueuePage = () => {
   const [rejectingId, setRejectingId] = useState(null);
   const [rejectReason, setRejectReason] = useState('');
   const [feedback, setFeedback] = useState(null);
+
+  const [recordId, setRecordId] = useState(null);
+  const closeRecord = useCallback(() => setRecordId(null), []);
 
   const token = localStorage.getItem('adminToken');
 
@@ -84,8 +88,21 @@ const BillingOrdersQueuePage = () => {
     }
   };
 
+  const reviewSubmission = async (order, approved, reason = '') => {
+    if (approved && !window.confirm('Confirm that this bank transfer was received and activate this purchase?')) return;
+    const response = await fetch(`${API_BASE}/api/admin/billing/orders/${order._id}/${approved ? 'verify-payment' : 'reject-payment'}`, {
+      method: 'POST', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ submissionId: order.currentPaymentSubmissionId, reason, notes: 'Verified by admin against bank transfer' }),
+    });
+    const result = await response.json();
+    if (!response.ok || !result.success) throw new Error(result.message || 'Review failed.');
+    setRecordId(null); fetchOrders();
+    setFeedback({ type: 'success', message: approved ? 'Payment approved and purchase activated.' : 'Payment rejected. The lab can correct and resubmit.' });
+  };
+
   return (
     <div style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto' }}>
+      {recordId && <PaymentRecordModal orderId={recordId} apiBase={API_BASE} token={token} admin onClose={closeRecord} onApprove={order => reviewSubmission(order, true)} onReject={(order, reason) => reviewSubmission(order, false, reason)} />}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
         <div>
           <h1 style={{ fontSize: '24px', fontWeight: 700, margin: '0 0 4px 0', color: '#0f172a' }}>Billing & Payment Queue</h1>
@@ -175,10 +192,16 @@ const BillingOrdersQueuePage = () => {
                         color: ord.paymentMethod === 'khalti' ? '#3730A3' : '#92400E',
                         marginBottom: '2px',
                       }}>
-                        {ord.paymentMethod === 'khalti' ? '⚡ Khalti' : ord.paymentMethod === 'manual_bank_qr' ? '🏦 Bank QR' : (ord.paymentMethod || 'Manual').toUpperCase()}
+                        {ord.paymentMethod === 'khalti' ? '⚡ Khalti' : ['bank_transfer', 'manual_bank_qr', 'manual_qr'].includes(ord.paymentMethod) ? '🏦 Bank QR' : (ord.paymentMethod || 'Manual').toUpperCase()}
                       </span>
                     </div>
                     <div style={{ fontWeight: 600, color: '#1d4ed8' }}>{ord.paymentReference || 'N/A'}</div>
+                    {ord.paymentDetailsSnapshot?.accountNumber && <div style={{ fontSize: 12 }}>
+                      Receiving bank: {ord.paymentDetailsSnapshot.bankName}<br />
+                      {ord.paymentDetailsSnapshot.accountHolder} · {ord.paymentDetailsSnapshot.accountNumber}<br />
+                      {ord.paymentDetailsSnapshot.branch}
+                    </div>}
+                    {/^https?:\/\//.test(ord.paymentProofUrl || '') && <div><a href={ord.paymentProofUrl} target="_blank" rel="noopener noreferrer">View payment receipt</a></div>}
                     {ord.metadata?.paymentNote && <div style={{ fontSize: '12px', color: '#64748b' }}>{ord.metadata.paymentNote}</div>}
                     {ord.paymentMethod === 'khalti' && ord.metadata?.khaltiPidx && <div style={{ fontSize: '11px', color: '#94a3b8' }}>PIDX: {typeof ord.metadata.khaltiPidx === 'string' ? ord.metadata.khaltiPidx.slice(0, 12) : ''}...</div>}
                   </td>
@@ -193,7 +216,32 @@ const BillingOrdersQueuePage = () => {
                     }}>{ord.status}</span>
                   </td>
                   <td style={{ padding: '12px 16px', textAlign: 'right', whiteSpace: 'nowrap' }}>
-                    {ord.status === 'payment_submitted' || ord.status === 'pending_payment' ? (
+                    <button 
+                      onClick={() => setRecordId(ord._id)}
+                      style={{
+                        padding: '6px 12px',
+                        background: '#f1f5f9',
+                        color: '#334155',
+                        border: '1px solid #cbd5e1',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        fontWeight: 600,
+                        fontSize: '12px',
+                        whiteSpace: 'nowrap',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        marginBottom: '8px',
+                        transition: 'all 0.2s'
+                      }}
+                      onMouseOver={e => { e.currentTarget.style.background = '#e2e8f0'; e.currentTarget.style.borderColor = '#94a3b8'; }}
+                      onMouseOut={e => { e.currentTarget.style.background = '#f1f5f9'; e.currentTarget.style.borderColor = '#cbd5e1'; }}
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                      View Details
+                    </button>
+                    {ord.currentPaymentSubmissionId?.proof && <div style={{ fontSize: '11px', color: '#16a34a', fontWeight: 600, marginBottom: '8px', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '4px' }}><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg> Proof Attached</div>}
+                    {!ord.currentPaymentSubmissionId && (ord.status === 'payment_submitted' || ord.status === 'pending_payment') ? (
                       <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', alignItems: 'center' }}>
                         <button
                           onClick={() => handleVerify(ord._id)}
@@ -219,7 +267,7 @@ const BillingOrdersQueuePage = () => {
                         </button>
                       </div>
                     ) : (
-                      <span style={{ fontSize: '12px', color: '#94a3b8' }}>Processed</span>
+                      <div style={{ fontSize: '12px', color: '#94a3b8', display: 'block', marginTop: '2px' }}>{ord.status === 'payment_submitted' ? 'Awaiting review' : 'Processed'}</div>
                     )}
                   </td>
                 </tr>

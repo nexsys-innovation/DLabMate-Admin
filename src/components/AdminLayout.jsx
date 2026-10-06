@@ -9,6 +9,7 @@ const links = [
   ['/clinics', Building2, 'Clinics'],
   ['/verification', ShieldCheck, 'Verification'],
   ['/billing-orders', CreditCard, 'Billing Orders'],
+  ['/payment-settings', CreditCard, 'Payment Settings'],
   ['/email-settings', Mail, 'Email & Alerts'],
   ['/marketing', Globe, 'Marketing'],
 ];
