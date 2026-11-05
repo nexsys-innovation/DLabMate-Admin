@@ -55,10 +55,10 @@ export default function MarketingPage() {
   const [creditPacks, setCreditPacks] = useState([]);
   const [plansLoading, setPlansLoading] = useState(false);
   const [showNewPlanModal, setShowNewPlanModal] = useState(false);
-  const [newPlanForm, setNewPlanForm] = useState({ code: '', name: '', description: '', monthlyPriceNpr: 1899, monthlyIncludedCredits: 300, isUnlimited: false, displayOrder: 1 });
+  const [newPlanForm, setNewPlanForm] = useState({ code: '', name: '', description: '', monthlyPriceNpr: 1899, monthlyIncludedCredits: 300, isUnlimited: false, includesAi: false, displayOrder: 1 });
   const [showEditPlanModal, setShowEditPlanModal] = useState(false);
   const [, setEditingPlan] = useState(null);
-  const [editPlanForm, setEditPlanForm] = useState({ planId: '', code: '', name: '', description: '', monthlyPriceNpr: 1899, monthlyIncludedCredits: 300, isUnlimited: false, displayOrder: 1 });
+  const [editPlanForm, setEditPlanForm] = useState({ planId: '', code: '', name: '', description: '', monthlyPriceNpr: 1899, monthlyIncludedCredits: 300, isUnlimited: false, includesAi: false, displayOrder: 1 });
   const [planSaving, setPlanSaving] = useState(false);
   const [editingCreditPack, setEditingCreditPack] = useState(null);
   const [showCreditPackModal, setShowCreditPackModal] = useState(false);
@@ -318,6 +318,7 @@ export default function MarketingPage() {
         monthlyPricePaisa: (Number(newPlanForm.monthlyPriceNpr) || 0) * 100,
         monthlyIncludedCredits: Number(newPlanForm.monthlyIncludedCredits) || 0,
         isUnlimited: newPlanForm.isUnlimited || false,
+        includesAi: Boolean(newPlanForm.includesAi),
         displayOrder: Number(newPlanForm.displayOrder) || 1,
       };
       const data = await apiRequest('/api/admin/billing/plans', {
@@ -331,7 +332,7 @@ export default function MarketingPage() {
         });
       }
       setShowNewPlanModal(false);
-      setNewPlanForm({ code: '', name: '', description: '', monthlyPriceNpr: 1899, monthlyIncludedCredits: 300, isUnlimited: false, displayOrder: 1 });
+      setNewPlanForm({ code: '', name: '', description: '', monthlyPriceNpr: 1899, monthlyIncludedCredits: 300, isUnlimited: false, includesAi: false, displayOrder: 1 });
       fetchPlansAndCreditPacks();
     } catch (err) {
       alert(err.message || 'Failed to create plan.');
@@ -350,6 +351,7 @@ export default function MarketingPage() {
       monthlyPriceNpr: currentVersion.monthlyPricePaisa ? currentVersion.monthlyPricePaisa / 100 : 0,
       monthlyIncludedCredits: currentVersion.monthlyIncludedCredits || 0,
       isUnlimited: currentVersion.isUnlimited || false,
+      includesAi: Boolean(currentVersion.includesAi),
       displayOrder: currentVersion.displayOrder || 1,
     });
     setShowEditPlanModal(true);
@@ -368,6 +370,7 @@ export default function MarketingPage() {
           monthlyPricePaisa: (Number(editPlanForm.monthlyPriceNpr) || 0) * 100,
           monthlyIncludedCredits: Number(editPlanForm.monthlyIncludedCredits) || 0,
           isUnlimited: editPlanForm.isUnlimited || false,
+          includesAi: Boolean(editPlanForm.includesAi),
           displayOrder: Number(editPlanForm.displayOrder) || 1,
         }),
       });
@@ -1416,6 +1419,7 @@ export default function MarketingPage() {
                     <th>Plan Name</th>
                     <th>Monthly Price (NPR)</th>
                     <th>Included Credits</th>
+                    <th>AI Included</th>
                     <th>Display Order</th>
                     <th>Active Version</th>
                     <th>Actions</th>
@@ -1424,11 +1428,11 @@ export default function MarketingPage() {
                 <tbody>
                   {plansLoading ? (
                     <tr>
-                      <td colSpan="7" className="empty">Loading subscription plans...</td>
+                      <td colSpan="8" className="empty">Loading subscription plans...</td>
                     </tr>
                   ) : plans.length === 0 ? (
                     <tr>
-                      <td colSpan="7" className="empty">No subscription plans found. Click "Create New Plan" to add one.</td>
+                      <td colSpan="8" className="empty">No subscription plans found. Click "Create New Plan" to add one.</td>
                     </tr>
                   ) : (
                     plans.map((item) => {
@@ -1441,6 +1445,17 @@ export default function MarketingPage() {
                           <td><strong>{ver.name || planInfo.name}</strong></td>
                           <td><strong style={{ color: '#0E7C86' }}>NPR {priceNpr}</strong> / mo</td>
                           <td>{ver.isUnlimited ? "Unlimited" : `${ver.monthlyIncludedCredits || 0} credits`}</td>
+                          <td>
+                            {ver.includesAi ? (
+                              <span style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '4px', backgroundColor: '#E0F2FE', color: '#0369A1', fontWeight: '700' }}>
+                                ✨ Yes
+                              </span>
+                            ) : (
+                              <span style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '4px', backgroundColor: '#F1F5F9', color: '#64748B' }}>
+                                No
+                              </span>
+                            )}
+                          </td>
                           <td>{ver.displayOrder || 1}</td>
                           <td>
                             {planInfo.isArchived ? (
@@ -1725,6 +1740,17 @@ export default function MarketingPage() {
                     </div>
                   </div>
 
+                  <div style={{ margin: '10px 0' }}>
+                    <label style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', fontSize: '13px', cursor: 'pointer' }}>
+                      <input
+                        type="checkbox"
+                        checked={newPlanForm.includesAi}
+                        onChange={(e) => setNewPlanForm({ ...newPlanForm, includesAi: e.target.checked })}
+                      />
+                      <span style={{ fontWeight: '600', color: '#0E7C86' }}>✨ Includes DLabMate AI Feature</span>
+                    </label>
+                  </div>
+
                   <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '12px' }}>
                     <button
                       type="button"
@@ -1850,6 +1876,17 @@ export default function MarketingPage() {
                       onChange={(e) => setEditPlanForm({ ...editPlanForm, displayOrder: Number(e.target.value) || 1 })}
                       style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #CBD5E1' }}
                     />
+                  </div>
+
+                  <div style={{ margin: '10px 0' }}>
+                    <label style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', fontSize: '13px', cursor: 'pointer' }}>
+                      <input
+                        type="checkbox"
+                        checked={editPlanForm.includesAi}
+                        onChange={(e) => setEditPlanForm({ ...editPlanForm, includesAi: e.target.checked })}
+                      />
+                      <span style={{ fontWeight: '600', color: '#0E7C86' }}>✨ Includes DLabMate AI Feature</span>
+                    </label>
                   </div>
 
                   <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '12px' }}>
