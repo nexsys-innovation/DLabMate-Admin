@@ -1,6 +1,6 @@
 import { clearQueryCache } from "../hooks/useCachedQuery";
 import React, { useEffect } from 'react';
-import { Building2, FlaskConical, Globe, LayoutDashboard, LogOut, ShieldCheck, CreditCard, Mail } from 'lucide-react';
+import { Building2, FlaskConical, Globe, LayoutDashboard, LogOut, ShieldCheck, CreditCard, Mail, Bot } from 'lucide-react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 
 const links = [
@@ -12,6 +12,7 @@ const links = [
   ['/payment-settings', CreditCard, 'Payment Settings'],
   ['/email-settings', Mail, 'Email & Alerts'],
   ['/marketing', Globe, 'Marketing'],
+  ['/ai-guides', Bot, 'AI Knowledge Base'],
 ];
 
 const AdminLayout = ({ children }) => {
