@@ -12,6 +12,8 @@ const CATEGORIES = [
   { value: 'general', label: 'General Features' },
 ];
 
+const AI_NAME = process.env.REACT_APP_AI_NAME || 'Milo AI';
+
 export default function AiFeatureGuidesPage() {
   const [guides, setGuides] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -168,7 +170,7 @@ export default function AiFeatureGuidesPage() {
       <div className="admin-page-head">
         <div>
           <span className="eyebrow" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <Bot size={15} /> DLabMate AI Knowledge Base
+            <Bot size={15} /> {AI_NAME} Knowledge Base
           </span>
           <h1>Feature Guides & Workflows</h1>
           <p>
