@@ -12,6 +12,7 @@ import MarketingPage from './pages/MarketingPage';
 import BillingOrdersQueuePage from './pages/BillingOrdersQueuePage';
 import PaymentSettingsPage from './pages/PaymentSettingsPage';
 import EmailSettingsPage from './pages/EmailSettingsPage';
+import AiFeatureGuidesPage from './pages/AiFeatureGuidesPage';
 
 const Protected = ({ children }) => {
   const location = useLocation();
@@ -37,6 +38,7 @@ const App = () => (
       <Route path="/billing-orders" element={<Shell><BillingOrdersQueuePage /></Shell>} />
       <Route path="/payment-settings" element={<Shell><PaymentSettingsPage /></Shell>} />
       <Route path="/email-settings" element={<Shell><EmailSettingsPage /></Shell>} />
+      <Route path="/ai-guides" element={<Shell><AiFeatureGuidesPage /></Shell>} />
       <Route path="/marketing" element={<Shell><MarketingPage /></Shell>} />
       <Route path="*" element={<Navigate to={localStorage.getItem('adminToken') ? '/dashboard' : '/login'} replace />} />
     </Routes>
